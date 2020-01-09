@@ -2,6 +2,7 @@
 #include<fstream>
 #include <map>
 #include<math.h>
+#include<vector>
 using namespace std;
 struct ele
 {
@@ -17,7 +18,7 @@ int isfound(string matchit,int n) //for decoding by taking string and matching w
 		if(matchit==data[i].code)			//if matched than return its index
 			return i;		
 	}
-	return -1;			//didnt found the matching code so return -1
+	return -2;			//didnt found the matching code so return -1
 	
 }
 string getbinary(int n)   //converting int to 8 bit binary
@@ -97,6 +98,7 @@ int main()
         cout << "Unable to open file";
         exit(1); // terminate with error
     }
+    inFile>>std::noskipws;
     while (inFile >> text)    //read char and save to text
 	{
         trace[text]++;     //key=text for occcurence count (increment for every occurence)
@@ -143,7 +145,8 @@ int main()
 	OutFile.close();
 	inFile.open("Binarycoded.txt");				
 	OutFile.open("ANSIIcoded.txt");		//binary to ancicode
-	int index=7;						//8 bit so start with 2^7
+	int index=7;
+		vector<int> v1,v2;						//8 bit so start with 2^7
 	int sum=0;
 	cout<<endl<<"ANSII Values : ";
 	while(inFile>>text)
@@ -155,6 +158,7 @@ int main()
 		{
 			index=7;				//reset to 7 index
 			cout<<sum<<" ";
+			v1.push_back(sum);
 			char ch=sum;		//convert the value into ansii character
 		//	cout<<ch<<" ";
 			OutFile<<ch;		//write corrosponding ansii character in the file
@@ -169,21 +173,42 @@ int main()
 	inFile.close();
 	OutFile.close();
 	
-	inFile.open("ANSIIcoded.txt");
+	inFile.open("ANSIIcoded.txt",ios::binary);
 	OutFile.open("Binarydecoded.txt");
-	while(inFile>>text)
+	cout<<"\nDecoded value : ";
+	do {
+   int c= inFile.get();
+   //if (c==std::char_traits::eof()) break;
+   // text= (char)c;
+    string str=getbinary(c);   //get binary value of text :return in string data type
+		OutFile<<str;
+    
+ } while (!inFile.fail());
+/*	while(inFile>>text)
 	{
 		int v=text;
-		v+=256;				//add 256 for gaining the desired number(reason : not found yet)
+		cout<<v<<" ";
+		
+		if(v<0)
+		v+=256;
+		if(v==0)
+		{
+			v=26;
+		}				//add 256 for gaining the desired number(reason : not found yet)
 		if(v!=256)			//last space has 256 so we will block by using if condition
 		{
 		string str=getbinary(v);   //get binary value of text :return in string data type
 		OutFile<<str;
 		}
-	}
+		v2.push_back(v);
+	}*/
 	inFile.close();
 	OutFile.close();
-	
+	for(int i=0;i<v1.size();i++)
+	{
+		cout<<i<<" ";
+		cout<<v1[i]<<" - "<<v2[i]<<" = "<<v1[i]-v2[i]<<endl;
+	}
 	inFile.open("Binarydecoded.txt");
 	OutFile.open("output.txt");
 	string matchit=""; 			//intial state
@@ -191,7 +216,7 @@ int main()
 	{
 		matchit+=text;			//add the character which is read by infile
 		int index=isfound(matchit,n); 		//return the index from the table which matches with the string 
-		if(index!=-1)				//-1 means value not available in the table
+		if(index!=-2)				//-1 means value not available in the table
 		{
 			OutFile<<data[index].ch;    //write corrosponding index character into the file
 			matchit="";
