@@ -3,11 +3,11 @@ using namespace std;
 
 struct bind
 {
-	char c;
+	string c;
 	float val;
 	string code;
 	int left,right;
-}data[100];
+}data[400];
 
 int first=0,n=0;
 vector<int> v,avoid;
@@ -71,7 +71,7 @@ void huffman()
 	{
 		for(int j=0;j<n-i-1;j++)
 		{
-			if(data[j].val > data[j+1].val || data[j+1].val==data[j].val && data[j].c==NULL && data[j+1].c!=NULL)
+			if(data[j].val > data[j+1].val)
 				swap(data[j],data[j+1]);
 		}
 	}
@@ -96,23 +96,37 @@ int main()
 	
 	ifstream inFile;
 	ofstream OutFile;
-	std::map<char,int> trace;	//dict type data structure
+	std::map<string,int> trace;	//dict type data structure
 	char text;
+	string s;
 	int count=0;
-    inFile.open("original.txt");
+    inFile.open("originalext.txt");
     if (!inFile) 
 	{
         cout << "Unable to open file";
         exit(1); // terminate with error
     }
     inFile>>std::noskipws;
-    while (inFile >> text)    //read char and save to text
+    
+	while (inFile >> text)    //read char and save to text
 	{
+		s+=text;
 		count++;
-        trace[text]++;     //key=text for occcurence count (increment for every occurence)
+		if(count%2==0)
+		{
+        	trace[s]++;     //key=text for occcurence count (increment for every occurence)
+    		s.clear();
+		}
     }
+    if(count%2==1)
+    	{
+			trace[s]++;
+			count=count/2+1;
+		}
+	else
+		count/=2;
     int i=0;
-    map<char, int>::iterator itr;  
+    map<string, int>::iterator itr;  
     cout << " KEY\tOCCURENCE\n"; 
     for (itr = trace.begin(); itr != trace.end(); ++itr) { 
        /* cout <<" "<< itr->first 
@@ -128,7 +142,7 @@ int main()
     inFile.close();
 	printlist();
 	huffman();
-	std::map<char,string> findcode;			//for mapping purpose
+	std::map<string,string> findcode;			//for mapping purpose
 	int k=0;
 	cout<<"\nCharacter\tCodeword\n";
 	for(int i=n;i>=0;i--)
@@ -140,14 +154,27 @@ int main()
 			v.push_back(i);						//saving indexes of leaf nodes so we can easily traverse using vector
 		}
 	}
+	
 	ofstream outFile;
-	outFile.open("Compressed.txt");
-	inFile.open("original.txt");
+	outFile.open("Compressedext.txt");
+	inFile.open("originalext.txt");
 	string str;
 	int test=0;
+	int h=0;
+	bool entry=false;
+	s.clear();
 	while(inFile>>text)
 	{
-		str+=findcode[text];		//add corrosponding code of character to string(binary)
+		h++;
+		if(h%2!=0)
+		{
+			s+=text;
+		}
+		else
+		{
+		s+=text;
+		str+=findcode[s];				//add corrosponding code of character to string(binary)
+		s.clear()	;
 		if(str.length()>8)			//if length exceeds 8 then start processing data
 		{
 			int sum=0;
@@ -160,13 +187,14 @@ int main()
 			}
 			cout<<"\t Decimal : "<<sum;
 			if(sum==26)						//avoid adding this element because it will cause end of file later on
-			{	
-				cout<<"  Skipped";
+			{
 				avoid.push_back(test);
+				cout<<"  Skipped";
 			}
 			else
 				outFile<<(char)sum;	
 			str=str.substr(8);
+		}
 		}
 	}
 	int sum=0;   //for remaining last characters which is less than 8
@@ -181,8 +209,8 @@ int main()
 	outFile<<(char)sum;	
 	inFile.close();
 	outFile.close();
-	inFile.open("compressed.txt");
-	outFile.open("output.txt");
+	inFile.open("compressedext.txt");
+	outFile.open("outputext.txt");
 	string matchit;
 	int dlen=0;
 	int test2=0;
@@ -210,7 +238,7 @@ int main()
 			}
 			if(isfound(test2+1))			//check that is it need to add the avoided character to the string
 				{
-				 test2++;
+					test2++;
 				str="00011010";				//binary string of 26
 				goto up;					//jump to the finding logic with new string
 				}

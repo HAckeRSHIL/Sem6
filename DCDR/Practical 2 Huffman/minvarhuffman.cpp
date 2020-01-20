@@ -44,9 +44,10 @@ void printlist()
 string getbinary(int n)   //converting int to 8 bit binary
 {
 	string str;
-    for (int i = 7; i >= 0; i--) { 
-        int k = n >> i; 
-        if (k & 1) 
+    for (int i=7;i>=0;i--)
+    { 
+        int k=n>>i; 
+        if(k&1) 
           	str+="1"; 
         else
             str+="0"; 
@@ -71,8 +72,8 @@ void huffman()
 	{
 		for(int j=0;j<n-i-1;j++)
 		{
-			if(data[j].val > data[j+1].val || data[j+1].val==data[j].val && data[j].c==NULL && data[j+1].c!=NULL)
-				swap(data[j],data[j+1]);
+			if(data[j].val > data[j+1].val )
+				swap(data[j],data[j+1]);			
 		}
 	}
 	printlist();
@@ -99,7 +100,7 @@ int main()
 	std::map<char,int> trace;	//dict type data structure
 	char text;
 	int count=0;
-    inFile.open("original.txt");
+    inFile.open("originalmin.txt");
     if (!inFile) 
 	{
         cout << "Unable to open file";
@@ -141,8 +142,8 @@ int main()
 		}
 	}
 	ofstream outFile;
-	outFile.open("Compressed.txt");
-	inFile.open("original.txt");
+	outFile.open("Compressedmin.txt");
+	inFile.open("originalmin.txt");
 	string str;
 	int test=0;
 	while(inFile>>text)
@@ -159,11 +160,11 @@ int main()
 					sum+=pow(2,7-i);		//find the decimal of corrosponding binary string
 			}
 			cout<<"\t Decimal : "<<sum;
-			if(sum==26)						//avoid adding this element because it will cause end of file later on
-			{	
-				cout<<"  Skipped";
-				avoid.push_back(test);
-			}
+			if(sum==26)		
+				{	
+					cout<<"   Skipped";		//avoid adding this element because it will cause end of file later on
+					avoid.push_back(test);
+				}
 			else
 				outFile<<(char)sum;	
 			str=str.substr(8);
@@ -181,19 +182,18 @@ int main()
 	outFile<<(char)sum;	
 	inFile.close();
 	outFile.close();
-	inFile.open("compressed.txt");
-	outFile.open("output.txt");
+	inFile.open("compressedmin.txt");
+	outFile.open("outputmin.txt");
 	string matchit;
 	int dlen=0;
 	int test2=0;
 	while(inFile>>text)
 	{
-	
 			int deci=(int)text;
 			if(deci<0)
 				deci+=256;
 			string str=getbinary(deci);    //get binary of ansi value of recently read characters
-			if(dlen==count-1)			//if it the last character then cut according the previous data
+			if(test-1==test2)			//if it is the last character then cut according the previous data
 				str=str.substr(0,cut);
 			cout<<endl<<++test2<<"   Binary decoded : "<<str;
 			cout<<"\tDecimal value : "<<deci;
@@ -210,10 +210,10 @@ int main()
 			}
 			if(isfound(test2+1))			//check that is it need to add the avoided character to the string
 				{
-				 test2++;
+					test2++;
 				str="00011010";				//binary string of 26
 				goto up;					//jump to the finding logic with new string
 				}
 	}
-	cout<<"\nSize : "<<count<<"  Decoded Size : "<<dlen;			//to check all the characters decoded or not
+	cout<<"\nSize : "<<test<<"  Decoded Size : "<<test2;			//to check all the characters decoded or not
 }
