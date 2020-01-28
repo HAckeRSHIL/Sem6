@@ -176,15 +176,15 @@ int main()
 	inFile.open("ANSIIcoded.txt",ios::binary);
 	OutFile.open("Binarydecoded.txt");
 	cout<<"\nDecoded value : ";
-	do {
-   int c= inFile.get();
-   //if (c==std::char_traits::eof()) break;
-   // text= (char)c;
-    string str=getbinary(c);   //get binary value of text :return in string data type
-		OutFile<<str;
-    
- } while (!inFile.fail());
-/*	while(inFile>>text)
+//	do {
+//   int c= inFile.get();
+//   //if (c==std::char_traits::eof()) break;
+//   // text= (char)c;
+//    string str=getbinary(c);   //get binary value of text :return in string data type
+//		OutFile<<str;
+//    
+// } while (!inFile.fail());
+	while(inFile>>text)
 	{
 		int v=text;
 		cout<<v<<" ";
@@ -201,7 +201,7 @@ int main()
 		OutFile<<str;
 		}
 		v2.push_back(v);
-	}*/
+	}
 	inFile.close();
 	OutFile.close();
 	for(int i=0;i<v1.size();i++)

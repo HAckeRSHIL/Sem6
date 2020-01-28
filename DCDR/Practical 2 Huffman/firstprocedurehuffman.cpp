@@ -71,7 +71,7 @@ void huffman()
 	{
 		for(int j=0;j<n-i-1;j++)
 		{
-			if(data[j].val > data[j+1].val || data[j+1].val==data[j].val && data[j].c==NULL && data[j+1].c!=NULL)
+			if(data[j].val > data[j+1].val || data[j+1].val==data[j].val && data[j].c!=NULL && data[j+1].c==NULL)
 				swap(data[j],data[j+1]);
 		}
 	}
@@ -193,7 +193,7 @@ int main()
 			if(deci<0)
 				deci+=256;
 			string str=getbinary(deci);    //get binary of ansi value of recently read characters
-			if(dlen==count-1)			//if it the last character then cut according the previous data
+			if(test-1==test2)			//if it the last character then cut according the previous data
 				str=str.substr(0,cut);
 			cout<<endl<<++test2<<"   Binary decoded : "<<str;
 			cout<<"\tDecimal value : "<<deci;

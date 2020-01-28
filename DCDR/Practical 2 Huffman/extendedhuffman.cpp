@@ -198,7 +198,10 @@ int main()
 		}
 	}
 	int sum=0;   //for remaining last characters which is less than 8
+	if(h%2==1)
+	str+=findcode[s];
 	cout<<endl<<++test<<"   Chopped string : "<<str;
+	
 	int cut=str.length();
 	for(i=0;i<cut;i++)
 		{
@@ -221,7 +224,7 @@ int main()
 			if(deci<0)
 				deci+=256;
 			string str=getbinary(deci);    //get binary of ansi value of recently read characters
-			if(dlen==count-1)			//if it the last character then cut according the previous data
+			if(test2==test-1)			//if it the last character then cut according the previous data
 				str=str.substr(0,cut);
 			cout<<endl<<++test2<<"   Binary decoded : "<<str;
 			cout<<"\tDecimal value : "<<deci;
