@@ -1,3 +1,5 @@
+//Problematic Test case : AARDVARK  (FIX THIS)
+
 #include<bits/stdc++.h>
 #include<iostream>
 #include<vector>
@@ -20,14 +22,14 @@ char lastch;
 branch new_branch()      //alloting memory
 {
 	branch nn;
-	nn=(branch)malloc(sizeof(node));
+	nn=new node();
 	nn->left=NULL;
 	nn->right=NULL;
 	nn->weight=1;
 	nn->ch='*';
 	return nn;
 } 
-void findnode(branch temp,char c, string &str)
+void NodePath(branch temp,char c, string &str)			//str is saved to store path of needed character
 {
 //	cout<<endl<<temp->ch<<endl;
 	if(c==temp->ch)
@@ -42,6 +44,7 @@ void findnode(branch temp,char c, string &str)
 			temp->right->ch=lastch;
 			temp->left->ch='#';
 			temp->left->weight=0;
+			//cout<<"TEMP num : "<<temp->num;
 			l->num=temp->num-2;
 			r->num=temp->num-1;
 		}
@@ -52,7 +55,7 @@ void findnode(branch temp,char c, string &str)
 	if(temp->left!=NULL && flag==0)
 	{
 		str+="0";
-		findnode(temp->left,c,str);
+		NodePath(temp->left,c,str);
 	}
 	if(temp->right!=NULL && flag==0)
 	{
@@ -60,7 +63,7 @@ void findnode(branch temp,char c, string &str)
 			str=str.substr(0,str.size()-1);
 		str=str.substr(0,str.size()-1);
 		str+="1";
-		findnode(temp->right,c,str);
+		NodePath(temp->right,c,str);
 	}
 }
 
@@ -124,6 +127,7 @@ void createtree()
 	par->right->num=102;
 	child->ch=input[0];
 	root=par;
+	cout<<"New Tree Created with node characters : '*'(Internal Node) , '#'(NYT Node), "<<input[0]<<"(First character Node)"<<endl;
 	v.push_back(input[0]);
 }
 int isfound(char c)
@@ -136,12 +140,12 @@ int isfound(char c)
 	return false;
 }
 bool entry=false;
-void process2(branch temp)
+void Rebalance(branch temp)
 {
 	if(temp->left->left!=NULL && temp->left->right!=NULL)		//only go to the node if it have childs
-		process2(temp->left);
+		Rebalance(temp->left);
 	if(temp->right->left!=NULL && temp->right->right!=NULL)		//in other words dont go to leaf nodes 
-		process2(temp->right);
+		Rebalance(temp->right);
 	if(temp->left->ch=='#')      //NYT found so start summing the nodes from there
 		entry=true;
 	if(entry)				//if NYT is discovered then start taking some of node and add them in parent
@@ -151,18 +155,19 @@ void process2(branch temp)
 			{
 				cout<<"\n\t\t\t\t\tSWAPPING  "<<temp->left->weight<<" with "<<temp->right->weight;
 				swap(temp->left , temp->right);
+				swap(temp->left->num , temp->right->num);
 			}
 		cout<<"\n\t\t\t\t\tSUM of "<<temp->left->ch<<" and "<<temp->right->ch<< " is "<<temp->weight;
 	}
 }
 
-void inorder(branch temp)
+void travel(branch temp)
 {
 	if(temp!=NULL)
 	{
-		inorder(temp->left);
-		printf("%d  ",temp->weight);
-		inorder(temp->right);	
+		printf("%d  ",temp->num);
+		travel(temp->right);	
+		travel(temp->left);
 	}
 }
 char finder(int &i)
@@ -195,7 +200,7 @@ void gotopath(string &path,branch temp,int &i)
 		else if(path[j]=='0')
 			temp=temp->left;
 	}
-//	cout<<"Reached to the ";
+	cout<<"Reached to the ";
 	if(temp->ch=='#')
 	{
 		cout<<" reached to NYT";
@@ -223,7 +228,7 @@ void gotopath(string &path,branch temp,int &i)
 	}
 	else
 		i++;
-	process2(root);
+	Rebalance(root);
 }
 int main()
 {
@@ -235,34 +240,32 @@ int main()
 		input+=t;
 	}
 	createtree();
-	branch temp;
 	for(int i=1;i<input.length();i++)
 	{
 		flag=0;
-		temp=root;
 		string strcode;
 		if(isfound(input[i]))
 		{
-			findnode(temp,input[i],strcode);
+			NodePath(root,input[i],strcode);
 			encoded+=strcode;
 			cout<<"\nPath to "<<input[i]<<" : "<<strcode;	
 		}
 		else 
 		{
-			lastch=input[i];
-			v.push_back(input[i]);
-			findnode(temp,'#',strcode);
+			lastch=input[i];			//variable saved show recent found char(will be used in NodePath)
+			v.push_back(input[i]);		//save in the discovered char vector
+			NodePath(root,'#',strcode);
 			cout<<"\nPath to NYT for finding "<<input[i]<< " : "<<strcode;
 			encoded+=strcode;
 			string charcode=findcode(input[i]);
 			encoded+=charcode;
 			cout<<"\nAdd new character "<<input[i]<<" of code : "<<charcode;			
 		}
-		process2(root);
+		Rebalance(root);
 		entry=false;	
 	}
-	cout<<endl;
-	inorder(root);
+	cout<<endl<<"Tree Travsersal : ";
+	travel(root);
 	cout<<endl;
 	cout<<"\nSet : ";
 	for(int i=0;i<v.size();i++)
@@ -287,13 +290,14 @@ int main()
 				sum+=pow(2,7-j);		//find the decimal of corrosponding binary string
 		}
 		i+=8;					//for next 8 bits
+	
 		cout<<"\nChopped String : "<<chopped<<" Decimal : "<<sum;
 		char c=sum;
 		outFile<<c;
 	}
 	int sum=0;
 	string chopped=encoded.substr(i);
-	for(int j=0;j<chopped.size();j++)
+	for(int j=0;j<remained;j++)
 	{
 		if(chopped[j]=='1')
 			sum+=pow(2,7-j);
@@ -301,10 +305,12 @@ int main()
 	cout<<"\nChopped String : "<<chopped<<" Decimal : "<<sum;
 	char c=sum;
 	outFile<<c;
+	cout<<"\n--------------------End of encoding--------------------\n";
 	outFile.close();
 	inFile.close();
 	inFile.open("Compressedadaptive.txt",ios::in | ios::binary);
 	outFile.open("Outputadaptive.txt");
+	inFile>>std::noskipws;
 	while(!inFile.eof())
 	{
 		char x;
@@ -325,13 +331,17 @@ int main()
 			cout<<"\nChopped String : "<<getbinary(y,8)<<" Decimal : "<<y;
 			decoded+=getbinary(y,8);
 	}
+	/*while(inFile>>c)
+	{
+		int dec=c;
+			if(dec<0)
+			dec+=256;
+		cout<<"\nChopped String : "<<getbinary(dec,8)<<" Decimal : "<<dec;
+		decoded+=getbinary(dec,8);
+	}*/
 	decoded=decoded.substr(0,8*len+remained);
 	cout<<endl<<"Decoded : "<<decoded;
 	i=0;
-	if(decoded==encoded)
-		cout<<"\nSUCCESS";
-	else
-		cout<<"\nFAIL";
 	char x=finder(i);
 	branch nn=new_branch();      //alloting memory for new node
 	nn->weight=0;
@@ -342,14 +352,20 @@ int main()
 	par->right=child;
 	child->ch=x;
 	root=par;
+	par->num=103;
+	child->num=102;
+	nn->num=101;
 	string path;
 	while(1)
 	{	
+		if(input.length()==ans.length())
+			break;
 		path+=decoded[i];
 		gotopath(path,root,i);
 		if(i>=decoded.length())
 			break;
 	}
+	travel(root);
 	cout<<endl<<ans;
 	outFile<<ans;
 }
